@@ -91,7 +91,7 @@ class OauthApplication(models.Model):
             access_token = oat.browse(self.env.cr, self.env.uid,
                                       access_token_ids[0])
             p_id = access_token.user_id.plan_id
-            if p_id:
+            if p_id and p_id.pricing_ids:
                 trial_days = p_id.pricing_ids[0].trial_period_days
                 hoy = datetime.date.today()
                 create_date = access_token.user_id.create_date
