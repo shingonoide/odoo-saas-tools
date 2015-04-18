@@ -6,6 +6,7 @@ from openerp.addons.web.http import request
 from openerp import models, fields, api, SUPERUSER_ID
 from openerp.addons.saas_utils import connector, database
 from openerp import http
+import datetime
 
 
 class OauthApplication(models.Model):
@@ -18,7 +19,9 @@ class OauthApplication(models.Model):
     db_storage = fields.Integer('DB storage (MB)', readonly=True)
     server = fields.Char('Server', readonly=True)
     plan = fields.Char(compute='_get_plan', string='Plan', size=64)
-
+    last_connection = fields.Char(compute='_get_last_connection', string='Last Connection', size=64)
+    sub_status = fields.Char(compute='_get_subscription_status', string='Subscription Status', size=64)
+    
     def edit_db(self, cr, uid, ids, context=None):
         obj = self.browse(cr, uid, ids[0])
         return {
@@ -71,7 +74,42 @@ class OauthApplication(models.Model):
             access_token = oat.browse(self.env.cr, self.env.uid,
                                       access_token_ids[0])
             self.plan = access_token.user_id.plan_id.name
-
+    
+    @api.one
+    def _get_last_connection(self):
+        oat = self.pool.get('oauth.access_token')
+        to_search = [('application_id', '=', self.id)]
+        access_token_ids = oat.search(self.env.cr, self.env.uid, to_search)
+        if access_token_ids:
+            access_token = oat.browse(self.env.cr, self.env.uid,
+                                      access_token_ids[0])
+            self.last_connection = access_token.user_id.login_date   
+    
+    @api.one
+    def _get_subscription_status(self):
+        oat = self.pool.get('oauth.access_token')
+        to_search = [('application_id', '=', self.id)]
+        access_token_ids = oat.search(self.env.cr, self.env.uid, to_search)
+        if access_token_ids:
+            access_token = oat.browse(self.env.cr, self.env.uid,
+                                      access_token_ids[0])
+            p_id = access_token.user_id.plan_id
+            if p_id and p_id.pricing_ids:
+                trial_days = p_id.pricing_ids[0].trial_period_days
+                hoy = datetime.date.today()
+                create_date = access_token.user_id.create_date
+                create_date = create_date.split(' ')
+                year,month,day = (int(x) for x in create_date[0].split('-'))    
+                ans = datetime.date(year, month, day)
+                dif =  hoy - ans
+                if access_token.user_id.stripe_plan_id != False:
+                    self.sub_status = access_token.user_id.stripe_plan_id
+                else:
+                    if dif.days <= int(trial_days):
+                        self.sub_status = "Trial - "+ str(int(trial_days)-dif.days)
+                    else:
+                        self.sub_status = "Need subscription"
+            
 
 class SaasConfig(models.TransientModel):
     _name = 'saas.config'
