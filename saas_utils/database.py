@@ -42,5 +42,6 @@ def get_market_dbs(with_templates=True):
         dbs += [d['template'] for d in data]
     icp = request.registry.get('ir.config_parameter')
     bd = icp.get_param(request.cr, SI, 'saas_portal.base_saas_domain')
-    dbs += [db for db in http.db_list(force=True) if db.endswith('_%s' % bd)]
+    dbs += [db for db in http.db_list(force=True)
+                if db.endswith('_%s' % bd.replace('.', '_'))]
     return dbs

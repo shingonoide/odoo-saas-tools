@@ -5,6 +5,9 @@ from openerp import models, fields
 from openerp.tools import config
 from openerp.addons.saas_utils import connector, database
 
+import logging
+_logger = logging.getLogger(__name__)
+
 
 def get_size(start_path='.'):
     total_size = 0
@@ -101,6 +104,7 @@ class SaasServerClient(models.Model):
 
     def update_all(self, cr, uid, server_db):
         db_list = database.get_market_dbs(with_templates=False)
+        _logger.info("Bases de datos: %s", str(db_list))
         try:
             client_list.remove(server_db)
         except:
