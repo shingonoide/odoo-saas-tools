@@ -122,6 +122,7 @@ class SaasConfig(models.TransientModel):
     database = fields.Char('Database', size=128)
     update_addons = fields.Char('Update Addons', size=256)
     install_addons = fields.Char('Install Addons', size=256)
+    uninstall_addons = fields.Char('Uninstall Addons', size=256)
     fix_ids = fields.One2many('saas.config.fix', 'config_id', 'Fixes')
     description = fields.Text('Description')
 
@@ -146,7 +147,12 @@ class SaasConfig(models.TransientModel):
     def upgrade_database(self, cr, uid, obj, context=None):
         res = {}
         scheme = request.httprequest.scheme
-        payload = {'update_addons': obj.update_addons}
+        payload = {
+            'update_addons': obj.update_addons,
+            'install_addons': obj.install_addons,
+            'uninstall_addons': obj.uninstall_addons,
+            'fixes': ','.join(['%s-%s' % (x.model, x.method) for x in obj.fix_ids])
+        }
 
         dbs = obj.database and [obj.database] or database.get_market_dbs(False)
         for db in dbs:

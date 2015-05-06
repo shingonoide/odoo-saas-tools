@@ -63,9 +63,11 @@
             <field name="arch" type="xml">
                 <form string="Configure Database" create="false" edit="false" delete="false">	
 				     <group>
+				     	<field name="id" invisible="1" />
 				     	<field name="action" readonly="1"/>
 						<field name="update_addons" attrs="{'invisible': [('action', '!=', 'upgrade')]}"/>
 						<field name="install_addons" attrs="{'invisible': [('action', '!=', 'upgrade')]}"/>
+						<field name="uninstall_addons" attrs="{'invisible': [('action', '!=', 'upgrade')]}"/>
 				        <field name="database" readonly="1"/>
 				     </group>
 					 <group attrs="{'invisible': [('action', '!=', 'upgrade')]}">
@@ -78,7 +80,7 @@
 					 </group>
 					 <separator />
 					 <group>
-					 	<field name="description" />
+					 	<field name="description" attrs="{'invisible': [('id', '=', False)]}" />
 					 </group>
 					 <footer>
 					 	<button name="execute_action" string="Execute" type="object" class="oe_highlight"/>
