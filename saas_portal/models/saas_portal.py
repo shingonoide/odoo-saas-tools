@@ -160,7 +160,14 @@ class SaasConfig(models.TransientModel):
             r = requests.post(url, data=payload)
             res[db] = r.status_code
         self.write(cr, uid, obj.id, {'description': str(res)})
-        return True
+        return {
+            'type': 'ir.actions.act_window',
+            'view_type': 'form',
+            'view_mode': 'form',
+            'res_model': 'saas.config',
+            'res_id': obj.id,
+            'target': 'new'
+        }
 
 
 class SaasConfigFix(models.TransientModel):
