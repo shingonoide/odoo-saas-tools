@@ -2,7 +2,6 @@
 import werkzeug
 from openerp import http, SUPERUSER_ID
 from openerp.http import request
-from openerp.addons.auth_oauth.controllers import main as oauth
 
 
 class SaasClient(http.Controller):
@@ -42,7 +41,8 @@ class SaasClient(http.Controller):
             for fix in fixes:
                 if fix:
                     model, method = fix.split('-')
-                    getattr(model, method)(request.cr, SUPERUSER_ID)
+                    getattr(request.registry[model], method)(request.cr,
+                                                             SUPERUSER_ID)
             status_code = 200
         except:
             status_code = 500

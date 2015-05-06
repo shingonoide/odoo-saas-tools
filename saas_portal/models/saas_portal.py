@@ -124,7 +124,7 @@ class SaasConfig(models.TransientModel):
     install_addons = fields.Char('Install Addons', size=256)
     uninstall_addons = fields.Char('Uninstall Addons', size=256)
     fix_ids = fields.One2many('saas.config.fix', 'config_id', 'Fixes')
-    description = fields.Text('Description')
+    description = fields.Text('Result')
 
     def execute_action(self, cr, uid, ids, context=None):
         res = False
