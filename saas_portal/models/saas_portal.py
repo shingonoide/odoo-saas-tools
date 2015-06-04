@@ -138,7 +138,7 @@ class SaasConfig(models.TransientModel):
     def edit_database(self, cr, uid, obj, context=None):
         url = obj.database.replace('_', '.')
         if '.com' not in url:
-            ulr = config.get('local_url')
+            url = config.get('local_url')
         params = (url, obj.database, config.get('tenant_passwd'))
         url = 'http://%s/login?db=%s&login=admin&key=%s' % params
         return {
