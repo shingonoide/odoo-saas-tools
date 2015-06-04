@@ -136,10 +136,10 @@ class SaasConfig(models.TransientModel):
         return res
 
     def edit_database(self, cr, uid, obj, context=None):
-        url = obj.database.replace('_', '.')
-        if '.com' not in url:
-            url = config.get('local_url')
-        params = (url, obj.database, config.get('tenant_passwd'))
+        host = obj.database.replace('_', '.')
+        if '.com' not in host:
+            host = config.get('local_ip')
+        params = (host, obj.database, config.get('tenant_passwd'))
         url = 'http://%s/login?db=%s&login=admin&key=%s' % params
         return {
             'type': 'ir.actions.act_url',
