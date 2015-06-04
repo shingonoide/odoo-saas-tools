@@ -5,6 +5,7 @@ import openerp
 from openerp.addons.web.http import request
 from openerp import models, fields, api, SUPERUSER_ID
 from openerp.addons.saas_utils import connector, database
+from openerp.tools import config
 from openerp import http
 import datetime
 
