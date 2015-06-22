@@ -157,8 +157,9 @@ class SaasConfig(models.TransientModel):
             'uninstall_addons': obj.uninstall_addons,
             'fixes': ','.join(['%s-%s' % (x.model, x.method) for x in obj.fix_ids])
         }
+        
 
-        dbs = obj.database and [obj.database] or database.get_market_dbs(False)
+        dbs = obj.database and obj.database.split(',') or database.get_market_dbs(False)
         for db in dbs:
             url = '{scheme}://{domain}/saas_client/upgrade_database'.format(scheme=scheme, domain=db.replace('_', '.'))
             r = requests.post(url, data=payload)
