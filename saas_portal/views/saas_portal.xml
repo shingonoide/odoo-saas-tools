@@ -68,7 +68,7 @@
 						<field name="update_addons" attrs="{'invisible': [('action', '!=', 'upgrade')]}"/>
 						<field name="install_addons" attrs="{'invisible': [('action', '!=', 'upgrade')]}"/>
 						<field name="uninstall_addons" attrs="{'invisible': [('action', '!=', 'upgrade')]}"/>
-				        <field name="database" readonly="1"/>
+				        <field name="database" />
 				     </group>
 					 <group attrs="{'invisible': [('action', '!=', 'upgrade')]}">
 					 	<field name="fix_ids" colspan="4" >
