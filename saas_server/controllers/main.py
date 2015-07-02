@@ -70,20 +70,44 @@ class SaasServer(http.Controller):
             registry['res.partner'].write(cr, SUPERUSER_ID, partner.id,
                                           {'email': admin_data['email']})
             # 2. Update user credentials
-            domain = [('login', '=', template_db)]
-            user_ids = registry['res.users'].search(cr, SUPERUSER_ID, domain)
-            user_id = user_ids and user_ids[0] or SUPERUSER_ID
-            user = registry['res.users'].browse(cr, SUPERUSER_ID, user_id)
-            user.write({
-                'login': admin_data['email'],
-                'name': admin_data['name'],
-                'email': admin_data['email'],
-                'country_id': country_id,
-                'parent_id': partner.id,
-                'oauth_provider_id': oauth_provider_id,
-                'oauth_uid': admin_data['user_id'],
-                'oauth_access_token': access_token
-            })
+            user_id = None
+            if user.plan_id.user_tpl:
+                _logger.info("\n\nSearching for user: %s\n",user.plan_id.user_tpl)
+                domain = [('login', '=', user.plan_id.user_tpl)]
+                user_ids = registry['res.users'].search(cr, SUPERUSER_ID, domain)
+                _logger.info("\n\nFound: %s\n", user_ids)
+                user_id = user_ids and user_ids[0] or None
+
+            if not user_id:
+                _logger.info("\n\nCreate a new Admin user\n")
+                group_id = registry['ir.model.data'].xmlid_to_res_id(
+                    cr, SUPERUSER_ID, 'base.group_system'
+                )
+
+                user_id = registry['res.users'].create(cr, SUPERUSER_ID, {
+                    'login': admin_data['email'],
+                    'name': admin_data['name'],
+                    'email': admin_data['email'],
+                    'country_id': country_id,
+                    'parent_id': partner.id,
+                    'oauth_provider_id': oauth_provider_id,
+                    'oauth_uid': admin_data['user_id'],
+                    'oauth_access_token': access_token,
+                    'groups_id': [(4, group_id, False)]
+                })
+            else:
+                user = registry['res.users'].browse(cr, SUPERUSER_ID, user_id)
+                user.write({
+                    'login': admin_data['email'],
+                    'name': admin_data['name'],
+                    'email': admin_data['email'],
+                    'country_id': country_id,
+                    'parent_id': partner.id,
+                    'oauth_provider_id': oauth_provider_id,
+                    'oauth_uid': admin_data['user_id'],
+                    'oauth_access_token': access_token
+                })
+
             # 3. Set suffix for all sequences
             seq_ids = registry['ir.sequence'].search(cr, SUPERUSER_ID,
                                                      [('suffix', '=', False)])

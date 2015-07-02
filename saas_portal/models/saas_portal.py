@@ -20,6 +20,7 @@ class OauthApplication(models.Model):
     db_storage = fields.Integer('DB storage (MB)', readonly=True)
     server = fields.Char('Server', readonly=True)
     plan = fields.Char(compute='_get_plan', string='Plan', size=64)
+
     last_connection = fields.Char(compute='_get_last_connection',
                                   string='Last Connection', size=64)
     sub_status = fields.Char(compute='_get_subscription_status',
@@ -157,7 +158,7 @@ class SaasConfig(models.TransientModel):
             'uninstall_addons': obj.uninstall_addons,
             'fixes': ','.join(['%s-%s' % (x.model, x.method) for x in obj.fix_ids])
         }
-        
+
 
         dbs = obj.database and obj.database.split(',') or database.get_market_dbs(False)
         for db in dbs:

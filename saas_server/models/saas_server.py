@@ -23,11 +23,18 @@ class SaasServerPlan(models.Model):
 
     name = fields.Char('Plan')
     template = fields.Char('Template')
+
+    def _get_default_lang_id(self):
+        lang = self.env['res.lang'].search([('code', '=', self.env.lang)])
+        return lang and lang[0]
+    lang = fields.Many2one('res.lang', 'Language', default=_get_default_lang_id)
+    user_tpl = fields.Char('User template name')
+
     demo = fields.Boolean('Demo Data')
     sequence = fields.Integer('Sequence')
     state = fields.Selection([('draft', 'Draft'), ('confirmed', 'Confirmed')],
                              'State', default='draft')
-    role_id = fields.Many2one('saas_server.role', 'Role')
+
     required_addons_ids = fields.Many2many('ir.module.module',
                                            rel='company_required_addons_rel',
                                            id1='company_id', id2='module_id',
@@ -42,7 +49,7 @@ class SaasServerPlan(models.Model):
 
     def create_template(self, cr, uid, ids, context=None):
         obj = self.browse(cr, uid, ids[0])
-        openerp.service.db.exp_create_database(obj.template, obj.demo, 'en_US')
+        openerp.service.db.exp_create_database(obj.template, obj.demo, obj.lang.code)
         addon_names = [x.name for x in obj.required_addons_ids]
         if 'saas_client' not in addon_names:
             addon_names.append('saas_client')
@@ -83,6 +90,13 @@ class SaasServerPlan(models.Model):
         obj = self.browse(cr, uid, ids[0])
         openerp.service.db.exp_drop(obj.template)
         return self.write(cr, uid, obj.id, {'state': 'draft'})
+
+    def unlink(self, cr, uid, ids, context=None):
+        objs = self.browse(cr, uid, ids, context=context)
+        for obj in objs:
+            self.delete_template(cr, uid, [obj.id], context=context)
+
+        return super(SaasServerPlan, self).unlink(cr, uid, ids, context=context)
 
 
 class SaasServerRole(models.Model):
