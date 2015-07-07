@@ -58,7 +58,7 @@ class SaasPortalConfigWizard(models.TransientModel):
             data = simplejson.loads(data)
             for r in data:
                 r['server'] = s
-                id = self.pool['oauth.application'].search(cr, uid, [('client_id', '=', r.get('client_id'))])
+                id = self.pool['oauth.application'].search(cr, uid, [('name', '=', r.get('name'))])
                 if not id:
                     self.pool['oauth.application'].create(cr, uid, r)
                 else:

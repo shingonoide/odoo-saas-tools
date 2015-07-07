@@ -54,3 +54,4 @@ docs/_build/
 
 # Eclipse
 .settings
+.idea/

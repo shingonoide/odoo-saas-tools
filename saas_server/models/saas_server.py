@@ -149,7 +149,7 @@ class SaasServerClient(models.Model):
                     'file_storage': file_storage,
                     'db_storage': db_storage,
                 }
-                oid = self.search(cr, uid, [('client_id', '=', client_id)])
+                oid = self.search(cr, uid, [('name', '=', db)])
                 if not oid:
                     self.create(cr, uid, data)
                 else:
