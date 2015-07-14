@@ -72,14 +72,11 @@ class SaasServer(http.Controller):
             # 2. Update user credentials
             user_id = None
             if user.plan_id.user_tpl:
-                _logger.info("\n\nSearching for user: %s\n",user.plan_id.user_tpl)
                 domain = [('login', '=', user.plan_id.user_tpl)]
                 user_ids = registry['res.users'].search(cr, SUPERUSER_ID, domain)
-                _logger.info("\n\nFound: %s\n", user_ids)
                 user_id = user_ids and user_ids[0] or None
 
             if not user_id:
-                _logger.info("\n\nCreate a new Admin user\n")
                 group_id = registry['ir.model.data'].xmlid_to_res_id(
                     cr, SUPERUSER_ID, 'base.group_system'
                 )
