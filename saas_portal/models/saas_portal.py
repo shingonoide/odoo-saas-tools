@@ -8,7 +8,9 @@ from openerp.addons.saas_utils import connector, database
 from openerp.tools import config
 from openerp import http
 import datetime
+import logging
 
+_logger = logging.getLogger(__name__)
 
 class OauthApplication(models.Model):
     _inherit = 'oauth.application'
@@ -81,13 +83,19 @@ class OauthApplication(models.Model):
 
     @api.one
     def _get_last_connection(self):
-        oat = self.pool.get('oauth.access_token')
-        to_search = [('application_id', '=', self.id)]
-        access_token_ids = oat.search(self.env.cr, self.env.uid, to_search)
-        if access_token_ids:
-            access_token = oat.browse(self.env.cr, self.env.uid,
-                                      access_token_ids[0])
-            self.last_connection = access_token.user_id.login_date
+        # oat = self.pool.get('oauth.access_token')
+        # to_search = [('application_id', '=', self.id)]
+        # access_token_ids = oat.search(self.env.cr, self.env.uid, to_search)
+        # if access_token_ids:
+        #     access_token = oat.browse(self.env.cr, self.env.uid,
+        #                               access_token_ids[0])
+        #     self.last_connection = access_token.user_id.login_date
+        user_id = connector.call(self.name, 'res.users', 'search',
+                               [('active', '=', True)], order='login_date desc'
+                               )[0]
+        user = connector.call(self.name, 'res.users', 'read', user_id,
+                              ['login', 'login_date'])
+        self.last_connection = user.get('login_date')
 
     @api.one
     def _get_subscription_status(self):
