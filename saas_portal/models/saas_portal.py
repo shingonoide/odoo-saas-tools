@@ -91,8 +91,9 @@ class OauthApplication(models.Model):
         #                               access_token_ids[0])
         #     self.last_connection = access_token.user_id.login_date
         user_id = connector.call(self.name, 'res.users', 'search',
-                               [('active', '=', True)], order='login_date desc'
-                               )[0]
+                                 [('active', '=', True), ('share', '=', False)],
+                                 order='login_date desc'
+                                )[0]
         user = connector.call(self.name, 'res.users', 'read', user_id,
                               ['login', 'login_date'])
         self.last_connection = user.get('login_date')
