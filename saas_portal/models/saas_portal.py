@@ -90,13 +90,18 @@ class OauthApplication(models.Model):
         #     access_token = oat.browse(self.env.cr, self.env.uid,
         #                               access_token_ids[0])
         #     self.last_connection = access_token.user_id.login_date
-        user_id = connector.call(self.name, 'res.users', 'search',
-                                 [('active', '=', True), ('share', '=', False)],
-                                 order='login_date desc'
-                                )[0]
-        user = connector.call(self.name, 'res.users', 'read', user_id,
-                              ['login', 'login_date'])
-        self.last_connection = user.get('login_date')
+        try:
+            user_id = connector.call(self.name, 'res.users', 'search',
+                                     [('active', '=', True),
+                                      ('share', '=', False)],
+                                     order='login_date desc'
+                                    )[0]
+            user = connector.call(self.name, 'res.users', 'read', user_id,
+                                  ['login', 'login_date'])
+            self.last_connection = user.get('login_date')
+        except Exception, e:
+            _logger.info("\n\n[%s] Exception caught: %s\n", self.name, e)
+            self.last_connection = "No login recorded"
 
     @api.one
     def _get_subscription_status(self):
