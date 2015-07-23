@@ -94,10 +94,12 @@ class SaasClient(http.Controller):
                         model, method = fix.split('-')
                         try:
                             getattr(request.registry[model], method)(request.cr,
-                                                                 SUPERUSER_ID)
+                                                                     SUPERUSER_ID)
                             status_code = 200 if status_code in (
                                 0, 200) else 207
-                        except:
+                            _logger.info("Fix success")
+                        except Exception as e:
+                            _logger.error(e)
                             status_code = 500 if status_code in (
                                 0, 500) else 207
             else:
