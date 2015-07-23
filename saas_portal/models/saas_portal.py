@@ -160,9 +160,9 @@ class SaasConfig(models.TransientModel):
         # scheme = request.httprequest.scheme
         scheme = 'https'
         payload = simplejson.dumps({
-            'update_addons': obj.update_addons,
-            'install_addons': obj.install_addons,
-            'uninstall_addons': obj.uninstall_addons,
+            'update_addons': obj.update_addons or '',
+            'install_addons': obj.install_addons or '',
+            'uninstall_addons': obj.uninstall_addons or '',
             'fixes': ','.join(['%s-%s' % (x.model, x.method) for x in obj.fix_ids])
         })
 
