@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 import requests
-import werkzeug
+import simplejson
 import openerp
 from openerp.addons.web.http import request
-from openerp import models, fields, api, SUPERUSER_ID
+from openerp import models, fields, api
 from openerp.addons.saas_utils import connector, database
 from openerp.tools import config
-from openerp import http
 import datetime
 import logging
 
@@ -83,13 +82,6 @@ class OauthApplication(models.Model):
 
     @api.one
     def _get_last_connection(self):
-        # oat = self.pool.get('oauth.access_token')
-        # to_search = [('application_id', '=', self.id)]
-        # access_token_ids = oat.search(self.env.cr, self.env.uid, to_search)
-        # if access_token_ids:
-        #     access_token = oat.browse(self.env.cr, self.env.uid,
-        #                               access_token_ids[0])
-        #     self.last_connection = access_token.user_id.login_date
         try:
             user_id = connector.call(self.name, 'res.users', 'search',
                                      [('active', '=', True),
@@ -165,14 +157,14 @@ class SaasConfig(models.TransientModel):
 
     def upgrade_database(self, cr, uid, obj, context=None):
         res = {}
-        scheme = request.httprequest.scheme
-        payload = {
+        # scheme = request.httprequest.scheme
+        scheme = 'https'
+        payload = simplejson.dumps({
             'update_addons': obj.update_addons,
             'install_addons': obj.install_addons,
             'uninstall_addons': obj.uninstall_addons,
             'fixes': ','.join(['%s-%s' % (x.model, x.method) for x in obj.fix_ids])
-        }
-
+        })
 
         dbs = obj.database and obj.database.split(',') or database.get_market_dbs(False)
         for db in dbs:
