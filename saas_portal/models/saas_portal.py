@@ -85,7 +85,8 @@ class OauthApplication(models.Model):
         try:
             user_id = connector.call(self.name, 'res.users', 'search',
                                      [('active', '=', True),
-                                      ('share', '=', False)],
+                                      ('share', '=', False),
+                                      ('id', '>', 1)],
                                      order='login_date desc'
                                     )[0]
             user = connector.call(self.name, 'res.users', 'read', user_id,
