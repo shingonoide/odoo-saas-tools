@@ -334,7 +334,14 @@ def find_databases(root_database):
 def local_pgadmin_cursor():
     cnx = None
     try:
-        cnx = psycopg2.connect("dbname=postgres")
+        dbhost=odoo_config.get('db_host') or 'localhost'
+        dbname=odoo_config.get('db_name') or 'postgres'
+        dbuser=odoo_config.get('db_user') or 'postgres'
+        dbpass=odoo_config.get('db_password') or False
+        conn_str = "host='%s' dbname='%s' user='%s'" % (dbhost, dbname, dbuser)
+        if dbpass:
+            conn_str += " password='%s'" % dbpass
+        cnx = psycopg2.connect(conn_str)
         cnx.autocommit = True  # required for admin commands
         yield cnx.cursor()
     finally:
