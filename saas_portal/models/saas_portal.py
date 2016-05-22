@@ -85,7 +85,8 @@ class SaasPortalServer(models.Model):
     @api.multi
     def action_redirect_to_server(self):
         r = self[0]
-        url = '{scheme}://{saas_server}:{port}{path}'.format(scheme=r.request_scheme, saas_server=r.name, port=r.request_port, path='/web')
+        name = r.name.replace('_', '.')
+        url = '{scheme}://{saas_server}:{port}{path}'.format(scheme=r.request_scheme, saas_server=name, port=r.request_port, path='/web')
         return {
             'type': 'ir.actions.act_url',
             'target': 'new',
@@ -161,7 +162,7 @@ class SaasPortalPlan(models.Model):
     server_id = fields.Many2one('saas_portal.server', string='SaaS Server',
                                 ondelete='restrict',
                                 help='User this saas server or choose random')
-    
+
     website_description = fields.Html('Website description')
     logo = fields.Binary('Logo')
 
